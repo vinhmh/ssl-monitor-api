@@ -1,62 +1,53 @@
-import 'dotenv/config';
-import cors from 'cors';
-import express from 'express';
-
-import models, { connectDb } from './models';
-import routes from './routes';
-
+require('dotenv').config();
+const cors = require('cors');
+const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+
+
 
 // * Application-Level Middleware * //
 
 // Third-Party Middleware
 
 app.use(cors());
+app.use(bodyParser.json());
 
-// Built-In Middleware
+// // Built-In Middleware
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 
 // Custom Middleware
 
-app.use(async (req, res, next) => {
-  req.context = {
-    models,
-    me: await models.AdminUser.findByLogin('vinhmh@gmail.com'),
-  };
-  next();
-});
+// app.use(async (req, res, next) => {
+//   req.context = {
+//     models,
+//     me: await models.AdminUser.findByLogin('vinhmh@gmail.com'),
+//   };
+//   next();
+// });
 
-// * Routes * //
+// * import Routes * //
 
-app.use('/domian', routes.domain);
-app.use('/adminUser', routes.adminUser);
+const domainRoute = require('./routes/domain');
+const adminRoute = require('./routes/adminUser');
 
 // * Start * //
 
 const eraseDatabaseOnSync = true;
 
-connectDb().then(async () => {
-  if (eraseDatabaseOnSync) {
-    await Promise.all([
-      models.Domain.deleteMany({}),
-      models.AdminUser.deleteMany({}),
-    ]);
+// init route
+ app.use('/domain',domainRoute)
+ app.use('/adminUser',adminRoute)
 
-    createAdminUsersWithMessages();
-  }
+ //mongo connection
+ mongoose.connect('mongodb://root:root@127.0.0.1:27017/ssl-monitor?authSource=admin',
+ {useNewUrlParse: true})
+ .then(() => console.log("Connected to Database! "))
+ .catch(err => console.log(err));
 
-  app.listen(process.env.PORT, () =>
-    console.log(`Example app listening on port ${process.env.PORT}!`),
-  );
-});
-
-// * Database Seeding * //
-
-const createAdminUsersWithMessages = async () => {
-  const user1 = new models.AdminUser({
-    email: 'vinhmh@gmail.com',
-  });
-  await user1.save();
-};
+ //start 
+ app.listen(5000)

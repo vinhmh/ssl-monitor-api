@@ -1,17 +1,26 @@
-import { Router } from 'express';
-
-const router = Router();
+const express =  require('express');
+const router = express.Router();
+const domainModel = require('../models/domain');
 
 router.get('/', async (req, res) => {
-  const domains = await req.context.models.Domain.find();
-  return res.send(users);
+ try {
+   const domains = await domainModel.find();
+   res.json(domains);
+ }
+ catch (error){
+   res.json({message : error});
+ }
 });
 
-router.get('/:domainID', async (req, res) => {
-  const domain = await req.context.models.Domain.findById(
-    req.params.domainId,
-  );
-  return res.send(domain);
+router.post('/', async (req, res) => {
+  try {
+    let addDomain = new domainModel(req.body);
+    let domain = await addDomain.save();
+    res.json(domain); 
+  }
+  catch (error){
+    res.json({message : error});
+  }
 });
 
-export default router;
+module.exports = router;
