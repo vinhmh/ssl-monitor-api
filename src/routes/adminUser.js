@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const PORT = process.env.PORT || 5000;
 const adminModel = require('../models/adminUser')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 router.get('/', (req, res) => {
     res.send(`Listening on ${ PORT }`);
 })
 
-router.get('/adminUser', (req, res) => {
+router.get('/', (req, res) => {
     adminModel.find().then((adminUser) => {
         res.send({
             adminUser
@@ -17,7 +19,7 @@ router.get('/adminUser', (req, res) => {
     });
 });
 
-router.post('/adminUser', (req, res) => {
+router.post('/', (req, res) => {
     var adminUser = new adminModel({
         email: req.body.email,
         password: req.body.password,
@@ -30,48 +32,39 @@ router.post('/adminUser', (req, res) => {
     });
 });
 
-// router.get('/user/:userID', (req, res) => {
-//     var userID = req.params.userID;
 
-//     User.findOne({
-//         userID: userID
-//     }).then((user) => {
-//         res.send(user);
-//     }, (e) => {
-//         res.status(400).send(e);
-//     });
-// });
+router.post('/login',(req,res)=>{
+    adminModel.findOne({email : req.body.email }).exec()
+        .then(adminUser =>{
+                if(adminUser){
+                    verifyPassword(adminUser,req,res)
+                }else{
+                    res.json({message : "Incorrect email or password..."})
+                }
+            }).catch(error =>{
+                res.status(500).json({message : `error : ${error}` })
+        })
+})
+ 
+const verifyPassword = (adminUser,req,res)=>{
+    bcrypt.compare(req.body.password,adminUser.password,(err,result)=>{
+        if(err) return res.status(500).json({message : err})
+        else{
+            if(result) return getToken(adminUser,res)
+            else return res.json({message : "Authentication failed ..."})
+        }
+    })
+}
 
-// router.put('/user/:userID', (req, res) => {
-//     var query = {
-//         userID: req.params.userID
-//     };
+const getToken = (adminUser,res) =>{
+    const token = jwt.sign({ email: adminUser.email},
+        process.env.JWT_KEY, { expiresIn:"1h"})
+    res.json({
+        message : "Auth successful",
+        adminUser,
+        token : token
+    });
+}
 
-//     User.findOneAndUpdate(query, {
-//         role: req.body.role,
-//         password: req.body.password
-//     }, {
-//         upsert: true
-//     }, (e, raw) => {
-//         if (e) {
-//             res.status(400).send('Invalid user supplied');
-//         }
-//         res.send(raw);
-//     });
-// });
-
-
-// router.delete('/user/:userID', (req, res) => {
-//     var query = {
-//         userID: req.params.userID
-//     };
-//     User.findOneAndRemove(query,
-//         (e, raw) => {
-//             if (e) {
-//                 res.status(400).send('Invalid username supplied');
-//             }
-//             res.send(raw);
-//         });
-// });
 
 module.exports = router;
