@@ -1,8 +1,9 @@
-const AdminModel = require('../src/models/adminUser');
+const db = require('../src/models/index');
+const adUser = db.admin
 
 checkEmail = (req, res, next) => {
     // Email
-    AdminModel.findOne({
+    adUser.findOne({
       email: req.body.email
     }).exec((err, user) => {
       if (err) {
@@ -14,10 +15,9 @@ checkEmail = (req, res, next) => {
         res.status(400).send({ message: "Failed! Email is already in use!" });
         return;
       }
-
       next();
     });
   };
-  next();
-
-module.exports = checkEmail;
+  
+const verifySignup = checkEmail;
+module.exports = verifySignup;

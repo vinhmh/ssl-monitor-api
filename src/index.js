@@ -3,51 +3,29 @@ const cors = require('cors');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-
-
-
-
-// * Application-Level Middleware * //
-
-// Third-Party Middleware
+const dbConfig = require('./config/dbConfig')
+//routes
+const db= require('./models/index')
+const adRoute = require('./routes/adminUser')
 
 app.use(cors());
+app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json());
-
-// // Built-In Middleware
-
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-
-// Custom Middleware
-
-// app.use(async (req, res, next) => {
-//   req.context = {
-//     models,
-//     me: await models.AdminUser.findByLogin('vinhmh@gmail.com'),
-//   };
-//   next();
-// });
-
-// * import Routes * //
-
-const domainRoute = require('./routes/domain');
-const adminRoute = require('./routes/adminUser');
-
-// * Start * //
-
-const eraseDatabaseOnSync = true;
-
-// init route
- app.use('/domain',domainRoute)
- app.use('/adminUser',adminRoute)
-
- //mongo connection
- mongoose.connect('mongodb://root:root@127.0.0.1:27017/ssl-monitor?authSource=admin',
- {useNewUrlParse: true})
- .then(() => console.log("Connected to Database! "))
- .catch(err => console.log(err));
+adRoute(app)
+require('./routes/domain')(app)
 
  //start 
- app.listen(5000)
+ db.mongosse.connect(process.env.DATABASE_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log("Successfully connect to MongoDB.");
+  })
+  .catch(err => {
+    console.error("Connection error", err);
+    process.exit();
+  });
+
+ const PORT = process.env.PORT || 5000;
+ app.listen(PORT, () => {console.log(`Server is running on ${PORT}`)})

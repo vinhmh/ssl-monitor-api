@@ -1,28 +1,13 @@
-const express =  require('express');
-const router = express.Router();
-const domainModel = require('../models/domain');
-
-router.get('/', async (req, res) => {
- try {
-   const domains = await domainModel.find();
-   res.json(domains);
- }
- catch (error){
-   res.json({message : error});
- }
-});
-
-router.post('/', async (req, res) => {
-  try {
-    let addDomain = new domainModel(req.body);
-    let domain = await addDomain.save();
-    res.json(domain); 
-  }
-  catch (error){
-    res.json({message : error});
-  }
-});
-
-router.post('/',async())
-
-module.exports = router;
+const domainController = require('../controllers/domainController')
+module.exports = function(app){
+  app.use(function(req, res, next) {
+    res.header(
+      "Access-Control-Allow-Headers",
+      "x-access-token, Origin, Content-Type, Accept"
+    );
+    next();
+  });
+  app.get('/domain/listDomains',domainController.listDomain)
+  app.post('/domain/addDomain', domainController.addDomain)
+  app.delete('/domain',domainController.deleteDomain)
+}
