@@ -9,12 +9,10 @@ const domainSchema = new Schema({
         unique: true},
     priority: {
         type: Number, 
-        required: true, 
+        // required: true, 
         unique: true},
-    port: {
-        type: Array,
-        "default": []
-    },
+    port: [Number]
+    ,
     expiredDate:{
         type: String
     },
