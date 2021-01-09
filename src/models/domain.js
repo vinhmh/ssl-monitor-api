@@ -11,10 +11,10 @@ const domainSchema = new Schema({
         type: Number, 
         // required: true, 
         unique: true},
-    port: [Number]
+    port: { type:Number}
     ,
     expiredDate:{
-        type: String
+        type: Date
     },
     status:{
         type: String
