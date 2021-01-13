@@ -10,7 +10,7 @@ exports.addDomain = (req, res) => {
   const domain = new Domain({
     domain: req.body.domain,
     priority: req.body.priority,
-    domain:req.body.domain
+    port:req.body.port,
   });
 
   domain.save((err) => {
