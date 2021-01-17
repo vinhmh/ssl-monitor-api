@@ -4,7 +4,6 @@ var mongo = require("mongodb");
 const mongoose = require("mongoose");
 const domain = require("../models/domain");
 var o_id = new mongo.ObjectID();
-// collection.update({'_id': o_id});
 
 exports.addDomain = (req, res) => {
   const domain = new Domain({
@@ -29,13 +28,23 @@ exports.listDomain = (req, res) => {
     });
 };
 
-exports.deleteDomain = (req, res) => {
-  var id = mongoose.Types.ObjectId(req.query.id)
-  Domain.deleteOne({
-      _id:id
-  },(err,domain) =>{
-      if(err) res.send(err);
-      res.json({message: 'Domain successfully deleted'});
+exports.deleteDomain =  (req, res) => {
+  var id = req.params.id
+  Domain.findByIdAndRemove(id).then(data => {
+    if (!data) {
+      res.status(404).send({
+        message: `Cannot delete domain with id=${id}. Maybe domain was not found!`
+      });
+    } else {
+      res.send({
+        message: "Domain was deleted successfully!"
+      });
+    }
   })
+  .catch(err => {
+    res.status(500).send({
+      message: "Could not delete Tutorial with id=" + id
+    });
+  });
 };
 

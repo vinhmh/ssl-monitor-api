@@ -1,4 +1,6 @@
-const domainController = require('../controllers/domainController')
+const domainController = require('../controllers/domainController');
+// const {jwtAuth} = require('../../midleware');
+
 module.exports = function(app){
   app.use(function(req, res, next) {
     res.header(
@@ -9,5 +11,5 @@ module.exports = function(app){
   });
   app.get('/domain/listDomains',domainController.listDomain)
   app.post('/domain/addDomain', domainController.addDomain)
-  app.delete('/domain',domainController.deleteDomain)
+  app.delete('/domain/:id',domainController.deleteDomain)
 }

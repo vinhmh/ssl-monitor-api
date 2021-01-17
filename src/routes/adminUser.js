@@ -1,5 +1,5 @@
 const adminController = require('../controllers/adminController')
-const verifySignup = require('../../midleware/verifySignup')
+const verifySignup = require('../../middlewares/verifySignup')
 
 
 module.exports = function(app){
