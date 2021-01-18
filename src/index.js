@@ -15,7 +15,7 @@ adRoute(app)
 require('./routes/domain')(app)
 
  //start 
- db.mongosse.connect('mongodb://localhost:27017/ssl_monitor', {
+ db.mongosse.connect(process.env.DATABASE_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
