@@ -51,7 +51,7 @@ exports.login = (req, res) => {
         res.status(200).send({
           id: aduser._id,
           email: aduser.email,
-          accessToken: token
+          token: token
         });
       });
   }
